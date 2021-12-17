@@ -13,9 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
 
     steps:
+      - name: Configure git for private modules
+        env:
+          TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: git config --global url."https://${TOKEN}:@github.com".insteadOf "ssh://git@github.com"
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -45,8 +49,44 @@ jobs:
       - name: Test
         run: |
           make test
-      - name: Coveralls
+      - name: Get branch name (merge)
+        if: ${{ github.event_name != 'pull_request' }}
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+      - name: Override Coverage Source Path for Sonar
+        run: sed -i 's/\/home\/runner\/work\/python-common\/python-common/\/github\/workspace/' coverage.xml
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        if: ${{ matrix.python-version == 3.9 && github.event_name != 'pull_request' }}
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        run: |
-          make coveralls
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=aftership
+            -Dsonar.projectKey=aftership-sdk-python
+            -Dsonar.tests=tests/
+            -Dsonar.branch.name=${{ env.BRANCH_NAME }}
+            -Dsonar.qualitygate.wait=true
+      - name: SonarQube Scan On Pull Request
+        uses: sonarsource/sonarqube-scan-action@master
+        if: ${{ matrix.python-version == 3.9 && github.event_name == 'pull_request' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=aftership
+            -Dsonar.projectKey=aftership-sdk-python
+            -Dsonar.tests=tests/
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.verbose=true
+            -Dsonar.pullrequest.provider=github
+            -Dsonar.pullrequest.github.repository=${{ github.repository }}
+            -Dsonar.pullrequest.key=${{ github.event.number }}
+            -Dsonar.pullrequest.branch=PR
+            -Dsonar.pullrequest.base=${{ github.base_ref }}

@@ -1,26 +1,26 @@
 from unittest import TestCase, mock
 
 import pytest
+from requests import Response
 
 import aftership
-from requests import Response
 
 
 class TrackingTestCase(TestCase):
     def setUp(self):
-        self.slug = '4px'
-        self.tracking_number = 'HH19260817'
-        self.tracking_id = 'k5lh7dy7vvqeck71p5loe011'
+        self.slug = "4px"
+        self.tracking_number = "HH19260817"
+        self.tracking_id = "k5lh7dy7vvqeck71p5loe011"
 
     @pytest.mark.vcr()
     def test_create_tracking(self):
-        response = aftership.tracking.create_tracking(tracking={'slug': self.slug,
-                                                                'tracking_number': self.tracking_number})
+        response = aftership.tracking.create_tracking(
+            tracking={"slug": self.slug, "tracking_number": self.tracking_number}
+        )
 
     @pytest.mark.vcr()
     def test_get_tracking(self):
-        response = aftership.tracking.get_tracking(slug=self.slug,
-                                                   tracking_number=self.tracking_number)
+        response = aftership.tracking.get_tracking(slug=self.slug, tracking_number=self.tracking_number)
 
     # @pytest.mark.vcr()
     # def test_delete_tracking(self):
@@ -32,8 +32,7 @@ class TrackingTestCase(TestCase):
 
     @pytest.mark.vcr()
     def test_update_tracking(self):
-        response = aftership.tracking.update_tracking(tracking_id=self.tracking_id,
-                                                      tracking={'title': 'new title'})
+        response = aftership.tracking.update_tracking(tracking_id=self.tracking_id, tracking={"title": "new title"})
 
     @pytest.mark.vcr()
     def test_retrack(self):
@@ -46,26 +45,31 @@ class TrackingTestCase(TestCase):
 
 class TrackingWithAdditionalFieldsTestCase(TestCase):
     def setUp(self):
-        self.tracking_id = 'wuuxyb7ohjx55kmpt5r7y017'
-        self.slug = 'postnl-3s'
-        self.tracking_number = '3SKAAG5995399'
-        self.destination_country = 'ESP'
-        self.postal_code = '46970'
+        self.tracking_id = "wuuxyb7ohjx55kmpt5r7y017"
+        self.slug = "postnl-3s"
+        self.tracking_number = "3SKAAG5995399"
+        self.destination_country = "ESP"
+        self.postal_code = "46970"
 
     @pytest.mark.vcr()
     def test_create_tracking(self):
-        response = aftership.tracking.create_tracking(tracking={'slug': self.slug,
-                                                                'tracking_number': self.tracking_number,
-                                                                'tracking_destination_country': self.destination_country,
-                                                                'tracking_postal_code': self.postal_code,
-                                                                })
+        response = aftership.tracking.create_tracking(
+            tracking={
+                "slug": self.slug,
+                "tracking_number": self.tracking_number,
+                "tracking_destination_country": self.destination_country,
+                "tracking_postal_code": self.postal_code,
+            }
+        )
 
     @pytest.mark.vcr()
     def test_get_tracking(self):
-        response = aftership.tracking.get_tracking(slug=self.slug,
-                                                   tracking_number=self.tracking_number,
-                                                   tracking_destination_country=self.destination_country,
-                                                   tracking_postal_code=self.postal_code)
+        response = aftership.tracking.get_tracking(
+            slug=self.slug,
+            tracking_number=self.tracking_number,
+            tracking_destination_country=self.destination_country,
+            tracking_postal_code=self.postal_code,
+        )
 
     @pytest.mark.vcr()
     def test_get_tracking_by_id(self):
@@ -73,8 +77,7 @@ class TrackingWithAdditionalFieldsTestCase(TestCase):
 
     @pytest.mark.vcr()
     def test_update_tracking(self):
-        response = aftership.tracking.update_tracking(tracking_id=self.tracking_id,
-                                                      tracking={'title': 'new title'})
+        response = aftership.tracking.update_tracking(tracking_id=self.tracking_id, tracking={"title": "new title"})
 
     @pytest.mark.vcr()
     def test_get_last_checkpoint(self):
@@ -83,7 +86,9 @@ class TrackingWithAdditionalFieldsTestCase(TestCase):
     @pytest.mark.vcr()
     def test_get_tracking_with_internal_error(self):
         with self.assertRaises(aftership.exception.InternalError):
-            response = aftership.tracking.get_tracking(slug=self.slug,
-                                                       tracking_number=self.tracking_number,
-                                                       tracking_destination_country=self.destination_country,
-                                                       tracking_postal_code=self.postal_code)
+            response = aftership.tracking.get_tracking(
+                slug=self.slug,
+                tracking_number=self.tracking_number,
+                tracking_destination_country=self.destination_country,
+                tracking_postal_code=self.postal_code,
+            )

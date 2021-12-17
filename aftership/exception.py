@@ -1,7 +1,11 @@
 class AfterShipError(Exception):
-    def __init__(self, message=None, code=None,
-                 http_status=None, response=None,
-                 ):
+    def __init__(
+        self,
+        message=None,
+        code=None,
+        http_status=None,
+        response=None,
+    ):
         super(AfterShipError, self).__init__()
         self.message = message
         self.code = code
@@ -9,7 +13,7 @@ class AfterShipError(Exception):
         self.response = response
 
     def __str__(self):
-        return '{}: {}'.format(self.__class__.__name__, self.message)
+        return "{}: {}".format(self.__class__.__name__, self.message)
 
 
 class BadRequest(AfterShipError):

@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from .const import API_KEY_FILED_NAME, API_ENDPOINT
+from .const import API_ENDPOINT, API_KEY_FILED_NAME
 from .util import get_api_key
 
 
@@ -13,8 +13,8 @@ def build_request_url(path):
 def make_request(method, path, **kwargs):
     url = build_request_url(path)
 
-    headers = kwargs.pop('headers', dict())
+    headers = kwargs.pop("headers", dict())
     if headers.get(API_KEY_FILED_NAME) is None:
         headers[API_KEY_FILED_NAME] = get_api_key()
-    kwargs['headers'] = headers
+    kwargs["headers"] = headers
     return requests.request(method, url, **kwargs)

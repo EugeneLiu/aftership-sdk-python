@@ -10,7 +10,8 @@ record:
 	poetry run py.test --vcr-record=new_episodes
 
 lint:
-	poetry run flake8 aftership
+	poetry run pre-commit run --all-files --show-diff-on-failure
+	poetry run pre-commit run gitlint --hook-stage commit-msg --commit-msg-filename .git/COMMIT_EDITMSG
 
 docs:
 	cd docs && make html
